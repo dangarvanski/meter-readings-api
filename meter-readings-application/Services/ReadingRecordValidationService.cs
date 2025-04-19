@@ -2,6 +2,7 @@
 using meter_readings_application.Entities;
 using meter_readings_application.Interfaces;
 using meter_readings_infrastructure.Interfaces;
+using System.Text.RegularExpressions;
 
 namespace meter_readings_application.Services;
 
@@ -41,7 +42,14 @@ public class ReadingRecordValidationService : IReadingRecordValidationService
         if (record.ReadingValue < 0)
         {
             response.IsValid = false;
-            response.Message = $"Invalid Reading Value! ReadingValue can't be below zero. ReadingValue: {record.ReadingValue} for AccountID: {record.AccountId}";
+            response.Message = $"ReadingValue can't be below zero. ReadingValue: {record.ReadingValue} for AccountID: {record.AccountId}";
+            return response;
+        }
+
+        if (!Regex.IsMatch(record.ReadingValue.ToString(), @"^\d{5}$"))
+        {
+            response.IsValid = false;
+            response.Message = $"Ivalid Reading Value. ReadingValue: {record.ReadingValue} for AccountID: {record.AccountId}";
             return response;
         }
 
