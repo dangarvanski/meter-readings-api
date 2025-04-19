@@ -18,10 +18,10 @@ public sealed class UploadCsvCommandHandler : IRequestHandler<UploadCsvCommand, 
 {
     private readonly ILogger<UploadCsvCommandHandler> _logger;
     private readonly IMeterReadingRepository _meterReadingRepository;
-    private readonly IReadingValidationService _readingValidationService;
-    private List<MeterReading> fileRecords;
+    private readonly IReadingRecordValidationService _readingValidationService;
+    private List<MeterReadingDbRecord> fileRecords;
 
-    public UploadCsvCommandHandler(ILogger<UploadCsvCommandHandler> logger, IMeterReadingRepository meterReadingRepository, IReadingValidationService readingValidationService)
+    public UploadCsvCommandHandler(ILogger<UploadCsvCommandHandler> logger, IMeterReadingRepository meterReadingRepository, IReadingRecordValidationService readingValidationService)
     {
         _logger = logger;
         _meterReadingRepository = meterReadingRepository;
@@ -33,7 +33,7 @@ public sealed class UploadCsvCommandHandler : IRequestHandler<UploadCsvCommand, 
         try
         {
             int goodRecords = 0, badRecords = 0;
-            fileRecords = new List<MeterReading>();
+            fileRecords = new List<MeterReadingDbRecord>();
 
             // Read and parse CSV file using CsvHelper
             using (var stream = new StreamReader(request.File.OpenReadStream(), Encoding.UTF8))
@@ -47,9 +47,9 @@ public sealed class UploadCsvCommandHandler : IRequestHandler<UploadCsvCommand, 
                 }
             }))
             {
-                csv.Context.RegisterClassMap<MeterReadingMap>();
+                csv.Context.RegisterClassMap<MeterReadingMapper>();
 
-                await foreach (var record in csv.GetRecordsAsync<MeterReading>(cancellationToken))
+                await foreach (var record in csv.GetRecordsAsync<MeterReadingDbRecord>(cancellationToken))
                 {
                     if (!IsRecordInFileDuplicate(record))
                     {
@@ -59,7 +59,7 @@ public sealed class UploadCsvCommandHandler : IRequestHandler<UploadCsvCommand, 
             }
 
             // Validate records
-            var validRecords = new List<MeterReading>();
+            var validRecords = new List<MeterReadingDbRecord>();
 
             foreach (var record in fileRecords)
             {
@@ -100,7 +100,7 @@ public sealed class UploadCsvCommandHandler : IRequestHandler<UploadCsvCommand, 
         }
     }
 
-    private bool IsRecordInFileDuplicate(MeterReading newRecord)
+    private bool IsRecordInFileDuplicate(MeterReadingDbRecord newRecord)
     {
         // Check for duplicates based on AccountId, ReadingValue, and the same day in ReadingDate
         bool isDuplicate = fileRecords.Any(r =>

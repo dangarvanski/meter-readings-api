@@ -1,6 +1,6 @@
-using meter_readings_application;
 using meter_readings_application.Commands;
 using meter_readings_application.Interfaces;
+using meter_readings_application.Services;
 using meter_readings_infrastructure.Entities;
 using meter_readings_infrastructure.Interfaces;
 using meter_readings_infrastructure.Repositories;
@@ -23,7 +23,7 @@ builder.Services.AddDbContext<ReadingsDbContext>(options =>
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IMeterReadingRepository, MeterReadingRepository>();
-builder.Services.AddScoped<IReadingValidationService, ReadingValidationService>();
+builder.Services.AddScoped<IReadingRecordValidationService, ReadingRecordValidationService>();
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly(), typeof(UploadCsvCommand).Assembly));
 

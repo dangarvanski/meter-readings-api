@@ -14,13 +14,13 @@ public class MeterReadingRepository : IMeterReadingRepository
         _context = context;
     }
 
-    public async Task UploadMeterReadingsAsync(IEnumerable<MeterReading> readings)
+    public async Task UploadMeterReadingsAsync(IEnumerable<MeterReadingDbRecord> readings)
     {
         await _context.MeterReadings.AddRangeAsync(readings);
         await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> CheckMeterReadingExists(MeterReading reading)
+    public async Task<bool> CheckMeterReadingExists(MeterReadingDbRecord reading)
     {
         var readingExists = await _context.MeterReadings
             .AsNoTracking()

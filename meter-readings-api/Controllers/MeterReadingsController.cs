@@ -44,48 +44,4 @@ public class MeterReadingsController : ControllerBase
 
         return BadRequest(new { result.Message });
     }
-
-    //[HttpPost("/meter-reading-uploads")]
-    //[ProducesResponseType(StatusCodes.Status200OK)]
-    //public async Task<IActionResult> UploadCsvFile(IFormFile file)
-    //{
-    //    // Check if a file was uploaded
-    //    if (file == null || file.Length == 0)
-    //    {
-    //        return BadRequest("No file uploaded.");
-    //    }
-
-    //    // Check if the file is a CSV
-    //    if (!file.FileName.EndsWith(".csv"))
-    //    {
-    //        return BadRequest("Please upload a CSV file.");
-    //    }
-
-    //    try
-    //    {
-    //        // Read the CSV file
-    //        var records = new List<string[]>();
-    //        using (var stream = new StreamReader(file.OpenReadStream(), Encoding.UTF8))
-    //        {
-    //            while (!stream.EndOfStream)
-    //            {
-    //                var line = await stream.ReadLineAsync();
-    //                var values = line.Split(','); // Basic CSV parsing (assumes no commas in fields)
-    //                records.Add(values);
-    //            }
-    //        }
-
-    //        // Process the CSV data (example: return the records)
-    //        return Ok(new
-    //        {
-    //            Message = "CSV file processed successfully.",
-    //            RecordCount = records.Count,
-    //            Records = records
-    //        });
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        return StatusCode(500, $"Error processing CSV file: {ex.Message}");
-    //    }
-    //}
 }

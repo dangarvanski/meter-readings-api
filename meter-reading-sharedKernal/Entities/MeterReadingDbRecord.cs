@@ -2,7 +2,7 @@
 
 namespace meter_reading_sharedKernal.Entities;
 
-public class MeterReading
+public class MeterReadingDbRecord
 {
     [Key]
     public int Id { get; set; }

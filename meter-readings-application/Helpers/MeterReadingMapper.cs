@@ -3,9 +3,9 @@ using meter_reading_sharedKernal.Entities;
 
 namespace meter_readings_application.Helpers;
 
-public class MeterReadingMap : ClassMap<MeterReading>
+public class MeterReadingMapper : ClassMap<MeterReadingDbRecord>
 {
-    public MeterReadingMap()
+    public MeterReadingMapper()
     {
         Map(m => m.AccountId)
             .Name("AccountId");

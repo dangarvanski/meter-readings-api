@@ -3,20 +3,20 @@ using meter_readings_application.Entities;
 using meter_readings_application.Interfaces;
 using meter_readings_infrastructure.Interfaces;
 
-namespace meter_readings_application;
+namespace meter_readings_application.Services;
 
-public class ReadingValidationService : IReadingValidationService
+public class ReadingRecordValidationService : IReadingRecordValidationService
 {
     private readonly IAccountRepository _accountRepository;
     private readonly IMeterReadingRepository _meterReadingRepository;
 
-    public ReadingValidationService(IAccountRepository accountRepository, IMeterReadingRepository meterReadingRepository)
+    public ReadingRecordValidationService(IAccountRepository accountRepository, IMeterReadingRepository meterReadingRepository)
     {
         _accountRepository = accountRepository;
         _meterReadingRepository = meterReadingRepository;
     }
 
-    public async Task<IsRecordValid> IsRecordValid(MeterReading record)
+    public async Task<IsRecordValid> IsRecordValid(MeterReadingDbRecord record)
     {
         var response = new IsRecordValid
         {
@@ -41,7 +41,7 @@ public class ReadingValidationService : IReadingValidationService
         return response;
     }
 
-    private async Task<bool> AccountForRecordExists(MeterReading record)
+    private async Task<bool> AccountForRecordExists(MeterReadingDbRecord record)
     {
         if (!await _accountRepository.AccountExistsAsync(record.AccountId))
         {
@@ -50,7 +50,7 @@ public class ReadingValidationService : IReadingValidationService
         return true;
     }
 
-    private async Task<bool> IsRecordDuplicate(MeterReading record)
+    private async Task<bool> IsRecordDuplicate(MeterReadingDbRecord record)
     {
         // Check for duplicate record in the database.
         if (!await _meterReadingRepository.CheckMeterReadingExists(record))

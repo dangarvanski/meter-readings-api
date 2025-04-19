@@ -3,8 +3,8 @@ using meter_readings_application.Entities;
 
 namespace meter_readings_application.Interfaces
 {
-    public interface IReadingValidationService
+    public interface IReadingRecordValidationService
     {
-        Task<IsRecordValid> IsRecordValid(MeterReading record);
+        Task<IsRecordValid> IsRecordValid(MeterReadingDbRecord record);
     }
 }

@@ -4,6 +4,6 @@ namespace meter_readings_infrastructure.Interfaces;
 
 public interface IMeterReadingRepository
 {
-    Task UploadMeterReadingsAsync(IEnumerable<MeterReading> readings);
-    Task<bool> CheckMeterReadingExists(MeterReading reading);
+    Task UploadMeterReadingsAsync(IEnumerable<MeterReadingDbRecord> readings);
+    Task<bool> CheckMeterReadingExists(MeterReadingDbRecord reading);
 }
