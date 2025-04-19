@@ -38,6 +38,13 @@ public class ReadingRecordValidationService : IReadingRecordValidationService
             return response;
         }
 
+        if (record.ReadingValue < 0)
+        {
+            response.IsValid = false;
+            response.Message = $"Invalid Reading Value! ReadingValue can't be below zero. ReadingValue: {record.ReadingValue} for AccountID: {record.AccountId}";
+            return response;
+        }
+
         return response;
     }
 

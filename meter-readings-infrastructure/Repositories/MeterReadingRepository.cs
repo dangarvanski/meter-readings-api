@@ -1,4 +1,5 @@
-﻿using meter_reading_sharedKernal.Entities;
+﻿using Azure;
+using meter_reading_sharedKernal.Entities;
 using meter_readings_infrastructure.Entities;
 using meter_readings_infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,25 @@ public class MeterReadingRepository : IMeterReadingRepository
     public MeterReadingRepository(ReadingsDbContext context)
     {
         _context = context;
+    }
+
+    public async Task<List<MeterReadingDbRecord>> GetAllRecordsAsync(int page, int pageSize)
+    {
+        return await _context.MeterReadings
+            .AsNoTracking()
+            .OrderByDescending(x => x.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+
+    public async Task<List<MeterReadingDbRecord>> GetRecordsByAccountIdAsync(int accountId)
+    {
+        return await _context.MeterReadings
+            .AsNoTracking()
+            .Where(x => x.AccountId == accountId)
+            .OrderByDescending(x => x.Id)
+            .ToListAsync();
     }
 
     public async Task UploadMeterReadingsAsync(IEnumerable<MeterReadingDbRecord> readings)

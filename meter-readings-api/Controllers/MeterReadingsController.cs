@@ -1,5 +1,7 @@
 ﻿using MediatR;
+using meter_reading_sharedKernal.Entities;
 using meter_readings_application.Commands;
+using meter_readings_application.Queries;
 using Microsoft.AspNetCore.Mvc;
 
 namespace meter_readings_api.Controllers;
@@ -13,6 +15,36 @@ public class MeterReadingsController : ControllerBase
     public MeterReadingsController(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    [HttpGet("/all-records")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<MeterReadingDbRecord>>> GetAllRecords([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    {
+        var records = await _mediator.Send(new GetAllRecordsQuery(page, pageSize));
+
+        if (records.Count == 0)
+        {
+            return NotFound("No records have been found!");
+        }
+
+        return Ok(records);
+    }
+
+    [HttpGet("/records-for-account{accountId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<List<MeterReadingDbRecord>>> GetRecordById(int accountId)
+    {
+        var response = await _mediator.Send(new GetRecordsByAccountIdQuery(accountId));
+
+        if (!response.Success)
+        {
+            return NotFound(response.Message);
+        }
+
+        return Ok(response.MeterReadings);
     }
 
     [HttpPost("/meter-reading-uploads")]
