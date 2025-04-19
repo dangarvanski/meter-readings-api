@@ -1,14 +1,9 @@
-﻿using CsvHelper;
-using CsvHelper.Configuration;
-using MediatR;
+﻿using MediatR;
 using meter_reading_sharedKernal.Entities;
-using meter_readings_application.Helpers;
 using meter_readings_application.Interfaces;
 using meter_readings_infrastructure.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System.Globalization;
-using System.Text;
 
 namespace meter_readings_application.Commands;
 
@@ -18,106 +13,66 @@ public sealed class UploadCsvCommandHandler : IRequestHandler<UploadCsvCommand, 
 {
     private readonly ILogger<UploadCsvCommandHandler> _logger;
     private readonly IMeterReadingRepository _meterReadingRepository;
+    private readonly ICsvProcessingService _csvProcessingService;
     private readonly IReadingRecordValidationService _readingValidationService;
-    private List<MeterReadingDbRecord> fileRecords;
 
-    public UploadCsvCommandHandler(ILogger<UploadCsvCommandHandler> logger, IMeterReadingRepository meterReadingRepository, IReadingRecordValidationService readingValidationService)
+    public UploadCsvCommandHandler(
+        ILogger<UploadCsvCommandHandler> logger,
+        IMeterReadingRepository meterReadingRepository,
+        ICsvProcessingService csvProcessingService,
+        IReadingRecordValidationService readingValidationService)
     {
         _logger = logger;
         _meterReadingRepository = meterReadingRepository;
+        _csvProcessingService = csvProcessingService;
         _readingValidationService = readingValidationService;
     }
 
     public async Task<UploadCsvResult> Handle(UploadCsvCommand request, CancellationToken cancellationToken)
     {
-        try
+        var processCsvResponse = await _csvProcessingService.ProcessCsv(request.File, cancellationToken);
+
+        if (!processCsvResponse.IsSuccessful)
         {
-            int goodRecords = 0, badRecords = 0;
-            fileRecords = new List<MeterReadingDbRecord>();
+            return UploadCsvResult.Failure(processCsvResponse.Message);
+        }
 
-            // Read and parse CSV file using CsvHelper
-            using (var stream = new StreamReader(request.File.OpenReadStream(), Encoding.UTF8))
-            using (var csv = new CsvReader(stream, new CsvConfiguration(CultureInfo.InvariantCulture)
-            {
-                HasHeaderRecord = true,
-                Delimiter = ",",
-                BadDataFound = context =>
-                {
-                    _logger.LogWarning($"Bad CSV data at field {context.Field}: {context.RawRecord}");
-                }
-            }))
-            {
-                csv.Context.RegisterClassMap<MeterReadingMapper>();
+        var fileReadings = processCsvResponse.Records;
 
-                await foreach (var record in csv.GetRecordsAsync<MeterReadingDbRecord>(cancellationToken))
-                {
-                    if (!IsRecordInFileDuplicate(record))
-                    {
-                        fileRecords.Add(record);
-                    }
-                }
+        // Validate records
+        int goodRecords = 0, badRecords = 0;
+        var validReadings = new List<MeterReadingDbRecord>();
+
+        foreach (var reading in fileReadings)
+        {
+            var recordValidResult = await _readingValidationService.IsRecordValid(reading);
+
+            if (recordValidResult.IsValid == false)
+            {
+                _logger.LogWarning(recordValidResult.Message);
+                badRecords++;
             }
-
-            // Validate records
-            var validRecords = new List<MeterReadingDbRecord>();
-
-            foreach (var record in fileRecords)
+            else
             {
-                var recordValidResult = await _readingValidationService.IsRecordValid(record);
-
-                if (recordValidResult.IsValid == false)
-                {
-                    _logger.LogWarning(recordValidResult.Message);
-                    badRecords++;
-                }
-                else
-                {
-                    validRecords.Add(record);
-                    goodRecords++;
-                }
+                validReadings.Add(reading);
+                goodRecords++;
             }
-
-            if (!validRecords.Any())
-            {
-                _logger.LogWarning($"CSV file has already been uploaded or is empty: {request.File.FileName}");
-                return UploadCsvResult.Failure("CSV file has been uploaded or contains no records.");
-            }
-
-            // Save valid readings
-            await _meterReadingRepository.UploadMeterReadingsAsync(validRecords);
-            _logger.LogInformation($"Successfully processed CSV file {request.File.FileName} with {fileRecords.Count} records.");
-
-            return UploadCsvResult.Success(
-                message: "CSV file processed successfully.",
-                successRecordCount: goodRecords,
-                failedRecordCount: badRecords
-            );
         }
-        catch (Exception ex)
+
+        if (!validReadings.Any())
         {
-            _logger.LogError(ex, $"Error processing CSV file {request.File.FileName}: {ex.Message}");
-            return UploadCsvResult.Failure("Failed to process CSV file.");
+            _logger.LogWarning($"CSV file has already been uploaded or is empty: {request.File.FileName}");
+            return UploadCsvResult.Failure("CSV file has been uploaded or contains no records.");
         }
-    }
 
-    private bool IsRecordInFileDuplicate(MeterReadingDbRecord newRecord)
-    {
-        // Check for duplicates based on AccountId, ReadingValue, and the same day in ReadingDate
-        bool isDuplicate = fileRecords.Any(r =>
-            r.AccountId == newRecord.AccountId &&
-            r.ReadingValue == newRecord.ReadingValue &&
-            r.ReadingDate.Date == newRecord.ReadingDate.Date);
+        // Save valid readings
+        await _meterReadingRepository.UploadMeterReadingsAsync(validReadings);
+        _logger.LogInformation($"Successfully processed CSV file {request.File.FileName} with {fileReadings.Count} records.");
 
-        if (!isDuplicate)
-        {
-            return false;
-            //records.Add(newRecord);
-        }
-        else
-        {
-            _logger.LogWarning("Duplicate record detected for AccountId: {AccountId}, ReadingValue: {ReadingValue}, Date: {Date}",
-                newRecord.AccountId, newRecord.ReadingValue, newRecord.ReadingDate.Date);
-            return true;
-        }
+        return UploadCsvResult.Success(
+            message: "CSV file processed successfully.",
+            successRecordCount: goodRecords,
+            failedRecordCount: badRecords
+        );
     }
 }

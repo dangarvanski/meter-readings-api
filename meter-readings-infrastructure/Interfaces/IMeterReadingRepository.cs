@@ -8,4 +8,6 @@ public interface IMeterReadingRepository
     Task<List<MeterReadingDbRecord>> GetRecordsByAccountIdAsync(int accountId);
     Task UploadMeterReadingsAsync(IEnumerable<MeterReadingDbRecord> readings);
     Task<bool> CheckMeterReadingExists(MeterReadingDbRecord reading);
+    Task<MeterReadingDbRecord?> GetLastReadingForAccount(int accountId);
+    Task<bool> EmptyDatabaseAsync();
 }

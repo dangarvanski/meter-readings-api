@@ -17,18 +17,25 @@ public class ReadingRecordValidationService : IReadingRecordValidationService
         _meterReadingRepository = meterReadingRepository;
     }
 
-    public async Task<IsRecordValid> IsRecordValid(MeterReadingDbRecord record)
+    public async Task<RecordValidationResponse> IsRecordValid(MeterReadingDbRecord record)
     {
-        var response = new IsRecordValid
+        var response = new RecordValidationResponse
         {
             IsValid = true,
             Message = string.Empty
         };
 
-        if (await IsRecordDuplicate(record))
+        //if (!Regex.IsMatch(record.ReadingValue.ToString(), @"^\d{5}$"))
+        //{
+        //    response.IsValid = false;
+        //    response.Message = $"Ivalid Reading Value. ReadingValue: {record.ReadingValue} for AccountID: {record.AccountId}";
+        //    return response;
+        //}
+
+        if (record.ReadingValue < 0)
         {
             response.IsValid = false;
-            response.Message = $"Record already registered in the database for AccountId: {record.AccountId}, ReadingValue: {record.ReadingValue}, Date: {record.ReadingDate.Date}";
+            response.Message = $"ReadingValue can't be below zero. ReadingValue: {record.ReadingValue} for AccountID: {record.AccountId}";
             return response;
         }
 
@@ -39,17 +46,17 @@ public class ReadingRecordValidationService : IReadingRecordValidationService
             return response;
         }
 
-        if (record.ReadingValue < 0)
+        if (await IsRecordDuplicate(record))
         {
             response.IsValid = false;
-            response.Message = $"ReadingValue can't be below zero. ReadingValue: {record.ReadingValue} for AccountID: {record.AccountId}";
+            response.Message = $"Record already registered in the database for AccountId: {record.AccountId}, ReadingValue: {record.ReadingValue}, Date: {record.ReadingDate.Date}";
             return response;
         }
 
-        if (!Regex.IsMatch(record.ReadingValue.ToString(), @"^\d{5}$"))
+        if (await IsRecordOlder(record))
         {
             response.IsValid = false;
-            response.Message = $"Ivalid Reading Value. ReadingValue: {record.ReadingValue} for AccountID: {record.AccountId}";
+            response.Message = $"Record with reading of: {record.ReadingValue} is older than latest reading for AccountID: {record.AccountId}";
             return response;
         }
 
@@ -67,11 +74,24 @@ public class ReadingRecordValidationService : IReadingRecordValidationService
 
     private async Task<bool> IsRecordDuplicate(MeterReadingDbRecord record)
     {
-        // Check for duplicate record in the database.
         if (!await _meterReadingRepository.CheckMeterReadingExists(record))
         {
             return false;
         }
         return true;
+    }
+
+    private async Task<bool> IsRecordOlder(MeterReadingDbRecord record)
+    {
+        MeterReadingDbRecord? latestRecord = await _meterReadingRepository.GetLastReadingForAccount(record.AccountId);
+
+        if (latestRecord != null)
+        {
+            if (latestRecord.ReadingDate > record.ReadingDate)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

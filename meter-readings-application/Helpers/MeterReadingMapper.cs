@@ -12,7 +12,7 @@ public class MeterReadingMapper : ClassMap<MeterReadingDbRecord>
         Map(m => m.ReadingDate)
             .Name("MeterReadingDateTime")
             .TypeConverterOption
-            .Format("dd/MM/yyyy HH:mm", "dd/MM/yy HH:mm", "dd/MM/yy H:mm");
+            .Format("dd/MM/yyyy HH:mm", "dd/MM/yy HH:mm", "dd/MM/yy H:mm", "d/M/yy H:mm");
         Map(m => m.ReadingValue)
             .Name("MeterReadValue");
     }

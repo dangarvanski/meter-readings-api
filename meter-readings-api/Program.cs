@@ -23,6 +23,7 @@ builder.Services.AddDbContext<ReadingsDbContext>(options =>
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IMeterReadingRepository, MeterReadingRepository>();
+builder.Services.AddScoped<ICsvProcessingService, CsvProcessingService>();
 builder.Services.AddScoped<IReadingRecordValidationService, ReadingRecordValidationService>();
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly(), typeof(UploadCsvCommand).Assembly));

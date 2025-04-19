@@ -76,4 +76,19 @@ public class MeterReadingsController : ControllerBase
 
         return BadRequest(new { result.Message });
     }
+
+    [HttpDelete("/empty-database/{confirmation}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<bool>> EmptyDatabase(string confirmation)
+    {
+        var result = await _mediator.Send(new EmptyDatabaseCommand(confirmation));
+
+        if (result == false)
+        {
+            return BadRequest($"Invalid confirmation statement!");
+        }
+
+        return Ok($"Records database has been emptied.");
+    }
 }

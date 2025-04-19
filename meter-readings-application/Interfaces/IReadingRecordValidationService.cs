@@ -5,6 +5,6 @@ namespace meter_readings_application.Interfaces
 {
     public interface IReadingRecordValidationService
     {
-        Task<IsRecordValid> IsRecordValid(MeterReadingDbRecord record);
+        Task<RecordValidationResponse> IsRecordValid(MeterReadingDbRecord record);
     }
 }

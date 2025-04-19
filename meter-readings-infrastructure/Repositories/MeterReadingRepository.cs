@@ -1,5 +1,4 @@
-﻿using Azure;
-using meter_reading_sharedKernal.Entities;
+﻿using meter_reading_sharedKernal.Entities;
 using meter_readings_infrastructure.Entities;
 using meter_readings_infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -54,5 +53,30 @@ public class MeterReadingRepository : IMeterReadingRepository
             return true;
         }
         return false;
+    }
+
+    public async Task<MeterReadingDbRecord?> GetLastReadingForAccount(int accountId)
+    {
+        var lastRead = await _context.MeterReadings
+            .AsNoTracking()
+            .Where(x => x.AccountId == accountId)
+            .OrderByDescending(x => x.ReadingDate)
+            .FirstOrDefaultAsync();
+
+        return lastRead;
+    }
+
+    public async Task<bool> EmptyDatabaseAsync()
+    {
+        try
+        {
+            _context.MeterReadings.RemoveRange(_context.MeterReadings);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
