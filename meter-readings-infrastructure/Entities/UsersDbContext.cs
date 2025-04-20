@@ -2,19 +2,13 @@
 
 namespace meter_readings_infrastructure.Entities;
 
-public class UsersDbContext : DbContext
+public class UsersDbContext(DbContextOptions<UsersDbContext> options) : DbContext(options)
 {
-    public UsersDbContext(DbContextOptions<UsersDbContext> options) : base(options) { }
-    public DbSet<Account> TestAccounts { get; set; }
+    public DbSet<AccountDbRecord> TestAccounts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Account>().ToTable("TestAccounts");
-        modelBuilder.Entity<Account>().HasKey(a => a.AccountId);
+        modelBuilder.Entity<AccountDbRecord>().ToTable("TestAccounts");
+        modelBuilder.Entity<AccountDbRecord>().HasKey(a => a.AccountId);
     }
-}
-
-public class Account
-{
-    public int AccountId { get; set; }
 }

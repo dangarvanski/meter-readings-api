@@ -3,16 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace meter_readings_infrastructure.Entities;
 
-public class ReadingsDbContext : DbContext
+public class ReadingsDbContext(DbContextOptions<ReadingsDbContext> options) : DbContext(options)
 {
-    public ReadingsDbContext(DbContextOptions<ReadingsDbContext> options) : base(options) { }
-
-    public DbSet<MeterReading> MeterReadings { get; set; }
+    public DbSet<MeterReadingDbRecord> MeterReadings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<MeterReading>().ToTable("MeterReadings");
-        modelBuilder.Entity<MeterReading>().HasKey(a => a.Id);
-        modelBuilder.Entity<MeterReading>().Property(m => m.AccountId).HasMaxLength(50);
+        modelBuilder.Entity<MeterReadingDbRecord>().ToTable("MeterReadings");
+        modelBuilder.Entity<MeterReadingDbRecord>().HasKey(a => a.Id);
     }
 }

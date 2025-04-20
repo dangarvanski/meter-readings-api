@@ -14,13 +14,32 @@ public class MeterReadingRepository : IMeterReadingRepository
         _context = context;
     }
 
-    public async Task UploadMeterReadingsAsync(IEnumerable<MeterReading> readings)
+    public async Task<List<MeterReadingDbRecord>> GetAllRecordsAsync(int page, int pageSize)
+    {
+        return await _context.MeterReadings
+            .AsNoTracking()
+            .OrderByDescending(x => x.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+
+    public async Task<List<MeterReadingDbRecord>> GetRecordsByAccountIdAsync(int accountId)
+    {
+        return await _context.MeterReadings
+            .AsNoTracking()
+            .Where(x => x.AccountId == accountId)
+            .OrderByDescending(x => x.Id)
+            .ToListAsync();
+    }
+
+    public async Task UploadMeterReadingsAsync(IEnumerable<MeterReadingDbRecord> readings)
     {
         await _context.MeterReadings.AddRangeAsync(readings);
         await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> CheckMeterReadingExists(MeterReading reading)
+    public async Task<bool> CheckMeterReadingExists(MeterReadingDbRecord reading)
     {
         var readingExists = await _context.MeterReadings
             .AsNoTracking()
@@ -34,5 +53,30 @@ public class MeterReadingRepository : IMeterReadingRepository
             return true;
         }
         return false;
+    }
+
+    public async Task<MeterReadingDbRecord?> GetLastReadingForAccount(int accountId)
+    {
+        var lastRead = await _context.MeterReadings
+            .AsNoTracking()
+            .Where(x => x.AccountId == accountId)
+            .OrderByDescending(x => x.ReadingDate)
+            .FirstOrDefaultAsync();
+
+        return lastRead;
+    }
+
+    public async Task<bool> EmptyDatabaseAsync()
+    {
+        try
+        {
+            _context.MeterReadings.RemoveRange(_context.MeterReadings);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
