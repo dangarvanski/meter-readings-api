@@ -31,15 +31,13 @@ public class UploadCsvCommandTests
         _csvProcessingService = new Mock<ICsvProcessingService>();
         _readingRecordValidationService = new Mock<IReadingRecordValidationService>();
 
-        var fileMock = new Mock<IFormFile>();
-        fileMock.Setup(f => f.FileName).Returns("test.csv");
-        fileMock.Setup(f => f.OpenReadStream()).Returns(new MemoryStream(Encoding.UTF8.GetBytes("Sample CSV content")));
-        fileMock.Setup(f => f.Length).Returns(Encoding.UTF8.GetBytes("Sample CSV content").Length);
+        var csvContent = "AccountId,MeterReadingDateTime,MeterReadValue\n" +
+                         "2233,24/05/2019 09:24,3455\n" +
+                         "2233,25/05/2019 09:24,6248\n" +
+                         "2233,26/05/2019 09:24,5267";
 
-        var fileMockObject = fileMock.Object;
-        var content = "Sample CSV content";
         var fileName = "test.csv";
-        var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
+        var stream = new MemoryStream(Encoding.UTF8.GetBytes(csvContent));
 
         _testFormFile = new FormFile(stream, 0, stream.Length, "file", fileName)
         {
