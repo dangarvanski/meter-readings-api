@@ -62,13 +62,19 @@ public sealed class UploadCsvCommandHandler : IRequestHandler<UploadCsvCommand, 
         if (!validReadings.Any())
         {
             _logger.LogWarning($"CSV file has already been uploaded or is empty: {request.File.FileName}");
-            return UploadCsvResult.Failure("CSV file has been uploaded or contains no records.");
+            return UploadCsvResult.Failure("CSV file already has been uploaded or contains no records.");
         }
 
         // Save valid readings
-        await _meterReadingRepository.UploadMeterReadingsAsync(validReadings);
-        _logger.LogInformation($"Successfully processed CSV file {request.File.FileName} with {fileReadings.Count} records.");
+        var uploadSuccessful = await _meterReadingRepository.UploadMeterReadingsAsync(validReadings);
 
+        if (!uploadSuccessful)
+        {
+            _logger.LogWarning($"CSV file upload failed at database level!");
+            return UploadCsvResult.Failure("CSV file upload faile. Internal Server Error.");
+        }
+
+        _logger.LogInformation($"Successfully processed CSV file {request.File.FileName} with {fileReadings.Count} records.");
         return UploadCsvResult.Success(
             message: "CSV file processed successfully.",
             successRecordCount: goodRecords,

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35506.116 d17.12
+VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "meter-readings-api", "meter-readings-api\meter-readings-api.csproj", "{591B3E3F-F7DE-410F-903D-7642B4B7F5BB}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -13,11 +13,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "meter-readings-application"
 		{E2B8EE58-D81E-457F-80E7-B4A5FA99C55B} = {E2B8EE58-D81E-457F-80E7-B4A5FA99C55B}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "meter-reading-sharedKernal", "meter-reading-sharedKernal\meter-reading-sharedKernal.csproj", "{E2B8EE58-D81E-457F-80E7-B4A5FA99C55B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "meter-readings-sharedKernal", "meter-reading-sharedKernal\meter-readings-sharedKernal.csproj", "{E2B8EE58-D81E-457F-80E7-B4A5FA99C55B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "meter-readings-infrastructure", "meter-readings-infrastructure\meter-readings-infrastructure.csproj", "{9DB6D3A0-4BCE-44AD-A7A9-79C9BA93C73A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E2B8EE58-D81E-457F-80E7-B4A5FA99C55B} = {E2B8EE58-D81E-457F-80E7-B4A5FA99C55B}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "meter-readings-tests-unit", "meter-readings-tests-unit\meter-readings-tests-unit.csproj", "{045CF0A0-C7EF-4779-97AE-50D447633247}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5F706FC8-7FDD-4EC2-BDE8-96DE84B42E55} = {5F706FC8-7FDD-4EC2-BDE8-96DE84B42E55}
 	EndProjectSection
 EndProject
 Global
@@ -42,6 +47,10 @@ Global
 		{9DB6D3A0-4BCE-44AD-A7A9-79C9BA93C73A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DB6D3A0-4BCE-44AD-A7A9-79C9BA93C73A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DB6D3A0-4BCE-44AD-A7A9-79C9BA93C73A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{045CF0A0-C7EF-4779-97AE-50D447633247}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{045CF0A0-C7EF-4779-97AE-50D447633247}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{045CF0A0-C7EF-4779-97AE-50D447633247}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{045CF0A0-C7EF-4779-97AE-50D447633247}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
