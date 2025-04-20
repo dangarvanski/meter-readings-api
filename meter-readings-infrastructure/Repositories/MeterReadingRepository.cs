@@ -33,10 +33,19 @@ public class MeterReadingRepository : IMeterReadingRepository
             .ToListAsync();
     }
 
-    public async Task UploadMeterReadingsAsync(IEnumerable<MeterReadingDbRecord> readings)
+    public async Task<bool> UploadMeterReadingsAsync(IEnumerable<MeterReadingDbRecord> readings)
     {
-        await _context.MeterReadings.AddRangeAsync(readings);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.MeterReadings.AddRangeAsync(readings);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+        
     }
 
     public async Task<bool> CheckMeterReadingExists(MeterReadingDbRecord reading)

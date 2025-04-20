@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\meter-reading-sharedKernal\meter-reading-sharedKernal.csproj" />
+    <ProjectReference Include="..\meter-reading-sharedKernal\meter-readings-sharedKernal.csproj" />
   </ItemGroup>
 
 </Project>

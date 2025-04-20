@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using meter_readings_infrastructure.Interfaces;
-using Microsoft.Extensions.Logging;
 
 namespace meter_readings_application.Commands;
 
@@ -8,7 +7,6 @@ public record EmptyDatabaseCommand(string confirmation) : IRequest<bool>;
 
 public sealed class EmptyDatabaseCommandHandler : IRequestHandler<EmptyDatabaseCommand, bool>
 {
-    private readonly ILogger<UploadCsvCommandHandler> _logger;
     private readonly IMeterReadingRepository _meterReadingRepository;
 
     public EmptyDatabaseCommandHandler(IMeterReadingRepository meterReadingRepository)
